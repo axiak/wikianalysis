@@ -17,8 +17,8 @@ void inline normalize_link(string *link);
 
 int main(int argc, char**argv)
 {
-    ofstream adj_file("./wp_adjlist.dat", ios::out | ios::trunc),
-        id_map("./wp_idmap.dat", ios::out | ios::trunc);
+    ofstream adj_file("/mnt/data/wp_adjlist.dat", ios::out | ios::trunc),
+        id_map("/mnt/data/wp_idmap.dat", ios::out | ios::trunc);
     string line;
     long long id = 0;
     StringPiece *matches = new StringPiece[20];
@@ -84,8 +84,8 @@ int main(int argc, char**argv)
 
         if (textstart_re.Match(sline, 0, RE2::UNANCHORED, matches, 1)) {
             /* This is the beginning of a text. */
-            line = line.substr(matches[0].length() + 
-                               ((int)matches[0].data() - (int)line.c_str()));
+            line = line.substr(matches[0].length() +
+                               ((size_t)matches[0].data() - (size_t)line.c_str()));
             sline.set(line.c_str(), line.length());
             if (id)
                 in_text = true;
@@ -101,10 +101,10 @@ int main(int argc, char**argv)
                 in_text = false;
                 break;
             }
-            start = matches[0].length() + ((int)matches[0].data() - (int)sline.data());
+            start = matches[0].length() + ((size_t)matches[0].data() - (size_t)sline.data());
             current_link = matches[1].as_string();
             tmp = current_link.find_first_of(':');
-            if (tmp != -1 && tmp < 8) {
+            if (tmp != (size_t)-1) {
                 continue;
             }
             normalize_link(&current_link);
@@ -113,7 +113,7 @@ int main(int argc, char**argv)
             }
             else {
                 adj_file << "\t" << current_link;
-            }                
+            }
             //cout << current_link << endl;
         }
     }
@@ -124,10 +124,10 @@ int main(int argc, char**argv)
 
 void inline normalize_link(string *link)
 {
-    for (int i=0; i < link->length(); i++) {
+    for (size_t i=0; i < link->length(); i++) {
         if ((*link)[i] == ' ') {
             (*link)[i] = '_';
-        } 
+        }
     }
     (*link)[0] = toupper((*link)[0]);
 }
